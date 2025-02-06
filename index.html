@@ -48,7 +48,6 @@
                     <label for="csv-file" class="btn secondary">Importar CSV</label>
                     <input type="file" id="csv-file" accept=".csv" hidden>
                     <button onclick="handleCSVImport(event)" class="btn tertiary">Subir</button>
-                    <button onclick="clearAllWords()" class="btn small">Borrar Todas</button>
                 </section>
 
                 <section id="word-list-section" class="word-list-section">
@@ -99,8 +98,26 @@
 
                 <section id="exercise-summary" class="exercise-summary hidden">
                     <h3>Resumen del Ejercicio</h3>
-                    <p id="summary-correct">Correctas: 0</p>
-                    <p id="summary-incorrect">Incorrectas: 0</p>
+                    <div class="summary-item">
+                        <p>Total de Palabras:</p>
+                        <span id="summary-total-words">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <p>Correctas:</p>
+                        <span id="summary-correct">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <p>Incorrectas:</p>
+                        <span id="summary-incorrect">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <p>Porcentaje de Respuestas Correctas:</p>
+                        <span id="summary-correct-percentage">0%</span>
+                    </div>
+                    <div id="performance-analysis" class="performance-analysis hidden">
+                        <h4>Análisis de Fortalezas y Debilidades</h4>
+                        <ul id="category-list"></ul>
+                    </div>
                     <button onclick="goBack()" class="btn secondary">Volver a Inicio</button>
                 </section>
             </section>

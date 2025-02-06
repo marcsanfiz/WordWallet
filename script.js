@@ -11,9 +11,6 @@ window.onload = function() {
     loadExerciseHistoryFromLocalStorage();
     populateCategories();
     loadThemeFromLocalStorage();
-    updateGeneralStats();
-    updateCategoryStats();
-    updateExerciseStats();
 };
 
 // Guardar palabra manualmente
@@ -30,8 +27,6 @@ document.getElementById("word-form").addEventListener("submit", function (e) {
         document.getElementById("word-form").reset();
         renderWordList();
         populateCategories();
-        updateGeneralStats();
-        updateCategoryStats();
     } else {
         alert("Por favor, complete todos los campos correctamente.");
     }
@@ -70,8 +65,6 @@ async function handleCSVImport(event) {
             alert(`${importedWords.length} palabras importadas exitosamente.`);
             renderWordList();
             populateCategories();
-            updateGeneralStats();
-            updateCategoryStats();
         } else {
             alert("El archivo CSV no contiene palabras válidas.");
         }
@@ -181,9 +174,6 @@ function editWord(index) {
         saveWordsToLocalStorage();
         alert("Palabra actualizada exitosamente");
         renderWordList();
-        populateCategories();
-        updateGeneralStats();
-        updateCategoryStats();
     } else {
         alert("No se realizaron cambios. Por favor, complete todos los campos correctamente.");
     }
@@ -196,22 +186,6 @@ function deleteWord(index) {
         saveWordsToLocalStorage();
         alert("Palabra eliminada exitosamente");
         renderWordList();
-        populateCategories();
-        updateGeneralStats();
-        updateCategoryStats();
-    }
-}
-
-// Borrar todas las palabras
-function clearAllWords() {
-    if (confirm("¿Estás seguro de que deseas borrar todas las palabras?")) {
-        words = [];
-        saveWordsToLocalStorage();
-        alert("Todas las palabras han sido borradas exitosamente");
-        renderWordList();
-        populateCategories();
-        updateGeneralStats();
-        updateCategoryStats();
     }
 }
 
@@ -325,11 +299,15 @@ function showNextQuestion() {
     showWord = Math.random() < 0.5;
 
     if (exerciseType === "test") {
-        const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
-        const allAnswers = [correctAnswer, ...getRandomAnswers(showWord ? words.map(w => w.translation) : words.map(w => w.word), 3)];
-        shuffleArray(allAnswers);
+        const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word; // Traducción o palabra correcta
+        const category = currentWordObj.category; // Categoría de la palabra/traducción correcta
+        const allAnswers = getUniqueOptions(category, correctAnswer, 3, !showWord); // Obtener opciones únicas
+        allAnswers.push(correctAnswer); // Añadir la respuesta correcta
+        shuffleArray(allAnswers); // Mezclar las opciones
 
-        questionElement.textContent = showWord ? `¿Qué significa "${currentWordObj.word}"?` : `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
+        questionElement.textContent = showWord ?
+            `¿Qué significa "${currentWordObj.word}"?` :
+            `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
 
         allAnswers.forEach(answer => {
             const button = document.createElement("button");
@@ -338,7 +316,9 @@ function showNextQuestion() {
             optionsElement.appendChild(button);
         });
     } else if (exerciseType === "writing") {
-        questionElement.textContent = showWord ? `Escribe la traducción de "${currentWordObj.word}"` : `Escribe la palabra para "${currentWordObj.translation}"`;
+        questionElement.textContent = showWord ?
+            `Escribe la traducción de "${currentWordObj.word}"` :
+            `Escribe la palabra para "${currentWordObj.translation}"`;
         answerInputElement.classList.remove("hidden");
         submitAnswerBtn.classList.remove("hidden");
         answerInputElement.value = ""; // Limpiar el campo de entrada
@@ -347,10 +327,14 @@ function showNextQuestion() {
         const randomType = Math.random() < 0.5 ? "test" : "writing";
         if (randomType === "test") {
             const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
-            const allAnswers = [correctAnswer, ...getRandomAnswers(showWord ? words.map(w => w.translation) : words.map(w => w.word), 3)];
+            const category = currentWordObj.category;
+            const allAnswers = getUniqueOptions(category, correctAnswer, 3, !showWord);
+            allAnswers.push(correctAnswer);
             shuffleArray(allAnswers);
 
-            questionElement.textContent = showWord ? `¿Qué significa "${currentWordObj.word}"?` : `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
+            questionElement.textContent = showWord ?
+                `¿Qué significa "${currentWordObj.word}"?` :
+                `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
 
             allAnswers.forEach(answer => {
                 const button = document.createElement("button");
@@ -359,7 +343,9 @@ function showNextQuestion() {
                 optionsElement.appendChild(button);
             });
         } else if (randomType === "writing") {
-            questionElement.textContent = showWord ? `Escribe la traducción de "${currentWordObj.word}"` : `Escribe la palabra para "${currentWordObj.translation}"`;
+            questionElement.textContent = showWord ?
+                `Escribe la traducción de "${currentWordObj.word}"` :
+                `Escribe la palabra para "${currentWordObj.translation}"`;
             answerInputElement.classList.remove("hidden");
             submitAnswerBtn.classList.remove("hidden");
             answerInputElement.value = ""; // Limpiar el campo de entrada
@@ -368,17 +354,21 @@ function showNextQuestion() {
     }
 }
 
-// Obtener respuestas aleatorias para las opciones de test
-function getRandomAnswers(correctAnswers, count) {
-    const allAnswers = words.map(word => word.translation).concat(words.map(word => word.word));
-    const randomAnswers = [];
-    while (randomAnswers.length < count) {
-        const randomAnswer = allAnswers[Math.floor(Math.random() * allAnswers.length)];
-        if (!randomAnswers.includes(randomAnswer) && !correctAnswers.includes(randomAnswer)) {
-            randomAnswers.push(randomAnswer);
+// Obtener opciones únicas para el modo Test
+function getUniqueOptions(category, correctAnswer, count, isWord) {
+    const filteredWords = words.filter(word => word.category === category); // Filtrar palabras por categoría
+    const options = [];
+
+    while (options.length < count) {
+        const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
+        const option = isWord ? randomWord.word : randomWord.translation; // Elegir palabra o traducción según el caso
+
+        if (!options.includes(option) && option !== correctAnswer) {
+            options.push(option);
         }
     }
-    return randomAnswers;
+
+    return options;
 }
 
 // Mezclar un array
@@ -394,6 +384,7 @@ function checkAnswer(userAnswer) {
     const questionElement = document.getElementById("question");
     const resultMessageElement = document.getElementById("result-message");
 
+    // Determinar la respuesta correcta basada en lo que se pide (palabra o traducción)
     const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
 
     // Si userAnswer es undefined, obtener el valor del campo de entrada
@@ -401,6 +392,7 @@ function checkAnswer(userAnswer) {
         userAnswer = document.getElementById("answer-input").value.trim();
     }
 
+    // Comparar la respuesta del usuario con la respuesta correcta (sin distinguir mayúsculas/minúsculas)
     const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
 
     if (isCorrect) {
@@ -423,8 +415,6 @@ function checkAnswer(userAnswer) {
         correct: correctAnswer,
         isCorrect: isCorrect
     });
-
-    saveExerciseHistoryToLocalStorage();
 
     setTimeout(() => {
         resultMessageElement.classList.remove("fade-in", "correct", "incorrect");
@@ -452,8 +442,10 @@ function endExercise() {
     document.getElementById("exercise-content").classList.add("hidden");
     document.getElementById("exercise-summary").classList.remove("hidden");
 
-    document.getElementById("summary-correct").textContent = `Correctas: ${score.correct}`;
-    document.getElementById("summary-incorrect").textContent = `Incorrectas: ${score.incorrect}`;
+    document.getElementById("summary-total-words").textContent = words.length;
+    document.getElementById("summary-correct").textContent = score.correct;
+    document.getElementById("summary-incorrect").textContent = score.incorrect;
+    document.getElementById("summary-correct-percentage").textContent = `${((score.correct / exerciseWords.length) * 100).toFixed(2)}%`;
 
     // Mostrar análisis de fortalezas y debilidades
     analyzePerformance();
@@ -461,13 +453,36 @@ function endExercise() {
 
 // Analizar el rendimiento del usuario
 function analyzePerformance() {
-    const summarySection = document.getElementById("exercise-summary");
-    const performanceAnalysis = document.createElement("section");
-    performanceAnalysis.classList.add("performance-analysis");
-    performanceAnalysis.innerHTML = "<h4>Análisis de Fortalezas y Debilidades</h4>";
+    const performanceAnalysis = document.getElementById("performance-analysis");
+    performanceAnalysis.classList.remove("hidden");
 
+    // Análisis por categoría
+    const categoryPerformance = {};
+    exerciseWords.forEach((wordObj, index) => {
+        const category = wordObj.category;
+        if (!categoryPerformance[category]) {
+            categoryPerformance[category] = { correct: 0, incorrect: 0 };
+        }
+
+        if (exerciseHistory[index].isCorrect) {
+            categoryPerformance[category].correct++;
+        } else {
+            categoryPerformance[category].incorrect++;
+        }
+    });
+
+    const categoryListElement = document.getElementById("category-list");
+    categoryListElement.innerHTML = "";
+
+    Object.keys(categoryPerformance).forEach(category => {
+        const categoryResult = categoryPerformance[category];
+        const categoryResultElement = document.createElement("li");
+        categoryResultElement.textContent = `Categoría: ${category}, Correctas: ${categoryResult.correct}, Incorrectas: ${categoryResult.incorrect}`;
+        categoryListElement.appendChild(categoryResultElement);
+    });
+
+    // Análisis de palabras más fáciles y difíciles
     const wordPerformance = {};
-
     exerciseHistory.forEach(entry => {
         const word = entry.word;
         if (!wordPerformance[word]) {
@@ -481,17 +496,20 @@ function analyzePerformance() {
         }
     });
 
-    // Ordenar palabras por incorrectas descendente
-    const sortedWords = Object.keys(wordPerformance).sort((a, b) => wordPerformance[b].incorrect - wordPerformance[a].incorrect);
+    const wordListPerformanceElement = document.getElementById("word-list-performance");
+    wordListPerformanceElement.innerHTML = "";
 
-    sortedWords.forEach(word => {
-        const wordResult = wordPerformance[word];
-        const wordResultElement = document.createElement("p");
-        wordResultElement.textContent = `Palabra: ${word}, Correctas: ${wordResult.correct}, Incorrectas: ${wordResult.incorrect}`;
-        performanceAnalysis.appendChild(wordResultElement);
+    // Ordenar palabras por incorrectas (más difíciles primero)
+    const sortedWords = Object.entries(wordPerformance).sort((a, b) => b[1].incorrect - a[1].incorrect);
+
+    sortedWords.forEach(([word, stats]) => {
+        const wordResultElement = document.createElement("li");
+        wordResultElement.textContent = `Palabra: ${word}, Correctas: ${stats.correct}, Incorrectas: ${stats.incorrect}`;
+        wordListPerformanceElement.appendChild(wordResultElement);
     });
 
-    summarySection.appendChild(performanceAnalysis);
+    // Guardar historial de ejercicios en localStorage
+    saveExerciseHistoryToLocalStorage();
 }
 
 // Limpiar contenido del ejercicio
@@ -518,6 +536,7 @@ function hideExerciseContent() {
     document.getElementById("exercise-summary").classList.add("hidden");
     document.getElementById("answer-input").classList.add("hidden");
     document.getElementById("submit-answer-btn").classList.add("hidden");
+    document.getElementById("performance-analysis").classList.add("hidden");
 }
 
 // Resetear la puntuación y el historial
@@ -548,43 +567,45 @@ function loadThemeFromLocalStorage() {
     }
 }
 
-// Actualizar estadísticas generales
-function updateGeneralStats() {
-    const totalWordsElement = document.getElementById("total-words");
-    const totalExercisesElement = document.getElementById("total-exercises");
-    const correctPercentageElement = document.getElementById("correct-percentage");
+// Mostrar estadísticas generales
+function showGeneralStats() {
+    document.getElementById("general-stats").classList.remove("hidden");
+    document.getElementById("category-stats").classList.add("hidden");
+    document.getElementById("exercise-stats").classList.add("hidden");
 
     const totalWords = words.length;
     const totalExercises = exerciseHistory.length;
-    const correctPercentage = totalExercises > 0 ? ((score.correct / totalExercises) * 100).toFixed(2) + "%" : "0%";
+    const correctPercentage = totalExercises > 0 ?
+        `${((exerciseHistory.filter(entry => entry.isCorrect).length / totalExercises) * 100).toFixed(2)}%` :
+        "0%";
 
-    totalWordsElement.textContent = `Total de Palabras: ${totalWords}`;
-    totalExercisesElement.textContent = `Total de Ejercicios: ${totalExercises}`;
-    correctPercentageElement.textContent = `Porcentaje de Respuestas Correctas: ${correctPercentage}`;
+    document.getElementById("total-words").textContent = `Total de Palabras: ${totalWords}`;
+    document.getElementById("total-exercises").textContent = `Total de Ejercicios: ${totalExercises}`;
+    document.getElementById("correct-percentage").textContent = `Porcentaje de Respuestas Correctas: ${correctPercentage}`;
 }
 
-// Actualizar estadísticas por categoría
-function updateCategoryStats() {
-    const categoryListElement = document.getElementById("category-list");
-    categoryListElement.innerHTML = "";
+// Mostrar estadísticas por categoría
+function showCategoryStats() {
+    document.getElementById("general-stats").classList.add("hidden");
+    document.getElementById("category-stats").classList.remove("hidden");
+    document.getElementById("exercise-stats").classList.add("hidden");
 
     const categoryPerformance = {};
-
     exerciseHistory.forEach(entry => {
-        const wordObj = words.find(word => word.word === entry.word || word.translation === entry.word);
-        if (wordObj) {
-            const category = wordObj.category;
-            if (!categoryPerformance[category]) {
-                categoryPerformance[category] = { correct: 0, incorrect: 0 };
-            }
+        const category = words.find(word => word.word === entry.word || word.translation === entry.word)?.category;
+        if (!categoryPerformance[category]) {
+            categoryPerformance[category] = { correct: 0, incorrect: 0 };
+        }
 
-            if (entry.isCorrect) {
-                categoryPerformance[category].correct++;
-            } else {
-                categoryPerformance[category].incorrect++;
-            }
+        if (entry.isCorrect) {
+            categoryPerformance[category].correct++;
+        } else {
+            categoryPerformance[category].incorrect++;
         }
     });
+
+    const categoryListElement = document.getElementById("category-list");
+    categoryListElement.innerHTML = "";
 
     Object.keys(categoryPerformance).forEach(category => {
         const categoryResult = categoryPerformance[category];
@@ -594,39 +615,18 @@ function updateCategoryStats() {
     });
 }
 
-// Actualizar estadísticas por ejercicio
-function updateExerciseStats() {
-    const exerciseListElement = document.getElementById("exercise-list");
-    exerciseListElement.innerHTML = "";
-
-    exerciseHistory.forEach(entry => {
-        const exerciseResultElement = document.createElement("li");
-        const date = new Date(entry.date).toLocaleString();
-        exerciseResultElement.textContent = `Fecha: ${date}, Palabra: ${entry.word}, Tu Respuesta: ${entry.answer}, Respuesta Correcta: ${entry.correct}, Resultado: ${entry.isCorrect ? "Correcta" : "Incorrecta"}`;
-        exerciseListElement.appendChild(exerciseResultElement);
-    });
-}
-
-// Mostrar estadísticas generales
-function showGeneralStats() {
-    document.getElementById("general-stats").classList.remove("hidden");
-    document.getElementById("category-stats").classList.add("hidden");
-    document.getElementById("exercise-stats").classList.add("hidden");
-    updateGeneralStats();
-}
-
-// Mostrar estadísticas por categoría
-function showCategoryStats() {
-    document.getElementById("general-stats").classList.add("hidden");
-    document.getElementById("category-stats").classList.remove("hidden");
-    document.getElementById("exercise-stats").classList.add("hidden");
-    updateCategoryStats();
-}
-
 // Mostrar estadísticas por ejercicio
 function showExerciseStats() {
     document.getElementById("general-stats").classList.add("hidden");
     document.getElementById("category-stats").classList.add("hidden");
     document.getElementById("exercise-stats").classList.remove("hidden");
-    updateExerciseStats();
+
+    const exerciseListElement = document.getElementById("exercise-list");
+    exerciseListElement.innerHTML = "";
+
+    exerciseHistory.forEach(entry => {
+        const entryElement = document.createElement("li");
+        entryElement.textContent = `Fecha: ${new Date(entry.date).toLocaleDateString()}, Pregunta: ${entry.word}, Tu Respuesta: ${entry.answer}, Respuesta Correcta: ${entry.correct}, Resultado: ${entry.isCorrect ? "Correcta" : "Incorrecta"}`;
+        exerciseListElement.appendChild(entryElement);
+    });
 }
