@@ -21,7 +21,13 @@ document.getElementById("word-form").addEventListener("submit", function (e) {
     const category = document.getElementById("category").value.trim();
 
     if (validateInputs(word, translation, category)) {
-        words.push({ word, translation, category });
+        words.push({
+            word: word,
+            translation: translation,
+            category: category,
+            interval: 1, // Intervalo inicial de repetición en días
+            nextRepetition: new Date().toISOString() // Fecha de la próxima repetición
+        });
         saveWordsToLocalStorage();
         alert("Palabra guardada exitosamente");
         document.getElementById("word-form").reset();
@@ -56,7 +62,13 @@ async function handleCSVImport(event) {
 
         const importedWords = csvRows.map(row => {
             const [word, translation, category] = row.split(",");
-            return { word: word.trim(), translation: translation.trim(), category: category.trim() };
+            return {
+                word: word.trim(),
+                translation: translation.trim(),
+                category: category.trim(),
+                interval: 1, // Intervalo inicial de repetición en días
+                nextRepetition: new Date().toISOString() // Fecha de la próxima repetición
+            };
         }).filter(wordObj => wordObj.word && wordObj.translation && wordObj.category);
 
         if (validateImportedWords(importedWords)) {
@@ -170,7 +182,13 @@ function editWord(index) {
     const updatedCategory = prompt("Nueva categoría:", words[index].category).trim();
 
     if (validateInputs(updatedWord, updatedTranslation, updatedCategory)) {
-        words[index] = { word: updatedWord, translation: updatedTranslation, category: updatedCategory };
+        words[index] = {
+            word: updatedWord,
+            translation: updatedTranslation,
+            category: updatedCategory,
+            interval: words[index].interval, // Mantener el intervalo actual
+            nextRepetition: words[index].nextRepetition // Mantener la fecha de próxima repetición actual
+        };
         saveWordsToLocalStorage();
         alert("Palabra actualizada exitosamente");
         renderWordList();
@@ -233,10 +251,27 @@ function startMixed() {
 // Obtener palabras para el ejercicio
 function getExerciseWords(categories, quantity) {
     const filteredWords = words.filter(word => categories.includes(word.category));
+
+    // Ordenar palabras por fecha de próxima repetición
+    filteredWords.sort((a, b) => new Date(a.nextRepetition) - new Date(b.nextRepetition));
+
     let exerciseWords = [];
 
     while (exerciseWords.length < quantity) {
-        exerciseWords.push(...filteredWords);
+        if (filteredWords.length === 0) {
+            break; // Evitar bucle infinito si no hay suficientes palabras
+        }
+
+        const randomIndex = Math.floor(Math.random() * filteredWords.length);
+        const randomWord = filteredWords[randomIndex];
+
+        // Asegurarse de que la palabra no esté ya en el ejercicio
+        if (!exerciseWords.some(exWord => exWord.word === randomWord.word && exWord.translation === randomWord.translation)) {
+            exerciseWords.push(randomWord);
+        }
+
+        // Eliminar la palabra temporalmente para evitar duplicados
+        filteredWords.splice(randomIndex, 1);
     }
 
     return exerciseWords.slice(0, quantity);
@@ -299,15 +334,15 @@ function showNextQuestion() {
     showWord = Math.random() < 0.5;
 
     if (exerciseType === "test") {
-        const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word; // Traducción o palabra correcta
+        const correctAnswer = showWord ? currentWordObj.word : currentWordObj.translation; // Palabra o traducción correcta
         const category = currentWordObj.category; // Categoría de la palabra/traducción correcta
         const allAnswers = getUniqueOptions(category, correctAnswer, 3, !showWord); // Obtener opciones únicas
         allAnswers.push(correctAnswer); // Añadir la respuesta correcta
         shuffleArray(allAnswers); // Mezclar las opciones
 
         questionElement.textContent = showWord ?
-            `¿Qué significa "${currentWordObj.word}"?` :
-            `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
+            `¿Cuál es la palabra para "${currentWordObj.translation}"?` :
+            `¿Qué significa "${currentWordObj.word}"?`;
 
         allAnswers.forEach(answer => {
             const button = document.createElement("button");
@@ -326,15 +361,15 @@ function showNextQuestion() {
     } else if (exerciseType === "mixed") {
         const randomType = Math.random() < 0.5 ? "test" : "writing";
         if (randomType === "test") {
-            const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
+            const correctAnswer = showWord ? currentWordObj.word : currentWordObj.translation;
             const category = currentWordObj.category;
             const allAnswers = getUniqueOptions(category, correctAnswer, 3, !showWord);
             allAnswers.push(correctAnswer);
             shuffleArray(allAnswers);
 
             questionElement.textContent = showWord ?
-                `¿Qué significa "${currentWordObj.word}"?` :
-                `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
+                `¿Cuál es la palabra para "${currentWordObj.translation}"?` :
+                `¿Qué significa "${currentWordObj.word}"?`;
 
             allAnswers.forEach(answer => {
                 const button = document.createElement("button");
@@ -385,7 +420,7 @@ function checkAnswer(userAnswer) {
     const resultMessageElement = document.getElementById("result-message");
 
     // Determinar la respuesta correcta basada en lo que se pide (palabra o traducción)
-    const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
+    const correctAnswer = showWord ? currentWordObj.word : currentWordObj.translation;
 
     // Si userAnswer es undefined, obtener el valor del campo de entrada
     if (userAnswer === undefined) {
@@ -400,11 +435,17 @@ function checkAnswer(userAnswer) {
         resultMessageElement.style.color = "green";
         resultMessageElement.classList.add("fade-in", "correct");
         score.correct++;
+
+        // Actualizar intervalo de repetición
+        updateRepetitionInterval(currentWordObj, true);
     } else {
         resultMessageElement.textContent = `Incorrecto. La respuesta correcta era "${correctAnswer}".`;
         resultMessageElement.style.color = "red";
         resultMessageElement.classList.add("fade-in", "incorrect");
         score.incorrect++;
+
+        // Actualizar intervalo de repetición
+        updateRepetitionInterval(currentWordObj, false);
     }
 
     // Guardar resultado en el historial
@@ -421,6 +462,26 @@ function checkAnswer(userAnswer) {
         currentQuestionIndex++;
         showNextQuestion();
     }, 1500);
+}
+
+// Actualizar intervalo de repetición
+function updateRepetitionInterval(wordObj, isCorrect) {
+    if (isCorrect) {
+        // Incrementar el intervalo de repetición
+        wordObj.interval *= 2;
+    } else {
+        // Reiniciar el intervalo de repetición
+        wordObj.interval = 1;
+    }
+
+    // Calcular la fecha de la próxima repetición
+    const currentDate = new Date();
+    const nextRepetitionDate = new Date(currentDate);
+    nextRepetitionDate.setDate(currentDate.getDate() + wordObj.interval);
+    wordObj.nextRepetition = nextRepetitionDate.toISOString();
+
+    // Guardar palabras actualizadas en localStorage
+    saveWordsToLocalStorage();
 }
 
 // Finalizar el ejercicio
