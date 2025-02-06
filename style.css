@@ -1,0 +1,525 @@
+:root {
+    --primary-color-light: #6366f1;
+    --secondary-color-light: #10b981;
+    --tertiary-color-light: #f59e0b;
+    --background-color-light: #f9fafb;
+    --text-color-light: #111827;
+    --border-color-light: #d1d5db;
+    --shadow-light: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+    --primary-color-dark: #bb86fc;
+    --secondary-color-dark: #3700b3;
+    --tertiary-color-dark: #03dac6;
+    --background-color-dark: #121212;
+    --text-color-dark: #ffffff;
+    --border-color-dark: #424242;
+    --shadow-dark: 0px 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color-light);
+    color: var(--text-color-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.screen {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    transition: display 0.3s;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.app-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.app-header h1,
+.app-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.back-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--primary-color-light);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.btn.small {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.primary {
+    background-color: var(--primary-color-light);
+    color: white;
+}
+
+.secondary {
+    background-color: var(--secondary-color-light);
+    color: white;
+}
+
+.tertiary {
+    background-color: var(--tertiary-color-light);
+    color: white;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.form label {
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.form input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.import-section {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+#csv-file {
+    display: none;
+}
+
+.word-list-section {
+    width: 100%;
+}
+
+.word-list {
+    list-style: none;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.word-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: border-bottom-color 0.3s;
+}
+
+.word-list button {
+    background-color: var(--tertiary-color-light);
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.word-list button:hover {
+    background-color: #d97706;
+}
+
+.exercise-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.exercise-settings label {
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.exercise-settings select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.exercise-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#question {
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    transition: color 0.3s;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.options button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.3s;
+}
+
+.options button:hover {
+    background-color: #f0f0f0;
+    border-color: var(--primary-color-light);
+}
+
+#answer-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+#result-message {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 16px;
+    transition: color 0.3s;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.correct {
+    animation: correctAnimation 0.5s ease-in-out;
+}
+
+@keyframes correctAnimation {
+    0% {
+        transform: scale(1);
+        background-color: #d4edda;
+    }
+    50% {
+        transform: scale(1.1);
+        background-color: #c3e6cb;
+    }
+    100% {
+        transform: scale(1);
+        background-color: #d4edda;
+    }
+}
+
+.incorrect {
+    animation: incorrectAnimation 0.5s ease-in-out;
+}
+
+@keyframes incorrectAnimation {
+    0% {
+        transform: scale(1);
+        background-color: #f8d7da;
+    }
+    50% {
+        transform: scale(1.1);
+        background-color: #f5c6cb;
+    }
+    100% {
+        transform: scale(1);
+        background-color: #f8d7da;
+    }
+}
+
+.exercise-summary {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.exercise-summary h3 {
+    font-size: 20px;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.exercise-summary p {
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 10px;
+    background-color: var(--primary-color-light);
+    transition: width 0.5s ease, background-color 0.3s;
+}
+
+/* Tema Oscuro */
+body.dark-mode {
+    background-color: var(--background-color-dark);
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .app-container {
+    background-color: var(--background-color-dark);
+    box-shadow: var(--shadow-dark);
+}
+
+body.dark-mode .back-btn {
+    color: var(--primary-color-dark);
+}
+
+body.dark-mode .form label {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .form input {
+    border-color: var(--border-color-dark);
+}
+
+body.dark-mode .exercise-settings label {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .exercise-settings select {
+    border-color: var(--border-color-dark);
+}
+
+body.dark-mode #question {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .options button {
+    border-color: var(--border-color-dark);
+}
+
+body.dark-mode .options button:hover {
+    border-color: var(--primary-color-dark);
+}
+
+body.dark-mode #answer-input {
+    border-color: var(--border-color-dark);
+}
+
+body.dark-mode #result-message {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .exercise-summary h3 {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .exercise-summary p {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .progress-bar-container {
+    background-color: #424242;
+}
+
+body.dark-mode .progress-bar {
+    background-color: var(--primary-color-dark);
+}
+
+/* Tema Toggle */
+.theme-toggle {
+    margin-top: 8px; /* Espacio reducido */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrar el interruptor */
+}
+
+.theme-toggle label {
+    margin-right: 10px;
+    font-size: 14px; /* Tamaño de fuente más pequeño */
+    transition: color 0.3s;
+}
+
+.theme-toggle input[type="checkbox"] {
+    width: 40px; /* Tamaño más pequeño */
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 10px;
+    position: relative;
+    appearance: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.theme-toggle input[type="checkbox"]:checked {
+    background-color: var(--primary-color-light);
+}
+
+.theme-toggle input[type="checkbox"]:before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: left 0.3s;
+}
+
+.theme-toggle input[type="checkbox"]:checked:before {
+    left: 21px;
+}
+
+body.dark-mode .theme-toggle input[type="checkbox"] {
+    background-color: #555;
+}
+
+body.dark-mode .theme-toggle input[type="checkbox"]:checked {
+    background-color: var(--primary-color-dark);
+}
+
+body.dark-mode .theme-toggle input[type="checkbox"]:before {
+    background-color: #333;
+}
+
+/* Estilos para la pantalla de Estadísticas */
+.stats-navigation {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.stats-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stats-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.stats-content p {
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.stats-content ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.stats-content li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: border-bottom-color 0.3s;
+}
+
+.stats-content li:last-child {
+    border-bottom: none;
+}
+
+body.dark-mode .stats-content li {
+    border-bottom-color: var(--border-color-dark);
+}
