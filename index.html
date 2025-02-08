@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprendizaje de Palabras</title>
+    <title>Word Wallet</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,13 +11,14 @@
         <!-- Pantalla Inicial -->
         <div id="home-screen" class="screen active">
             <header class="app-header">
-                <h1>Aprendizaje de Palabras</h1>
+                <h1>Word Wallet</h1>
             </header>
             <section class="content">
                 <button onclick="showAddWords()" class="btn primary">Añadir Palabras</button>
                 <button onclick="showExercises()" class="btn secondary">Ejercicios</button>
                 <button onclick="showStatistics()" class="btn tertiary">Estadísticas</button>
-                <div id="theme-toggle" class="theme-toggle">
+                <button onclick="resetStats()" class="btn small reset">Restablecer Estadísticas</button>
+<div id="theme-toggle" class="theme-toggle">
                     <label for="theme-switch">Tema Oscuro</label>
                     <input type="checkbox" id="theme-switch" onchange="toggleTheme()">
                 </div>
@@ -45,9 +46,11 @@
                 </form>
 
                 <section id="import-section" class="import-section">
+<div id="import-loader" class="hidden">Cargando...</div>
                     <label for="csv-file" class="btn secondary">Importar CSV</label>
                     <input type="file" id="csv-file" accept=".csv" hidden>
                     <button onclick="handleCSVImport(event)" class="btn tertiary">Subir</button>
+                    <button onclick="clearAllWords()" class="btn small">Borrar Todas</button>
                 </section>
 
                 <section id="word-list-section" class="word-list-section">
@@ -83,6 +86,7 @@
                     <button onclick="startTest()" class="btn primary">Test</button>
                     <button onclick="startWriting()" class="btn secondary">Escritura</button>
                     <button onclick="startMixed()" class="btn tertiary">Mixto</button>
+                    <button onclick="goBack()" class="btn small volver">Volver</button>
                 </section>
 
                 <section id="exercise-content" class="exercise-content hidden">
@@ -98,26 +102,8 @@
 
                 <section id="exercise-summary" class="exercise-summary hidden">
                     <h3>Resumen del Ejercicio</h3>
-                    <div class="summary-item">
-                        <p>Total de Palabras:</p>
-                        <span id="summary-total-words">0</span>
-                    </div>
-                    <div class="summary-item">
-                        <p>Correctas:</p>
-                        <span id="summary-correct">0</span>
-                    </div>
-                    <div class="summary-item">
-                        <p>Incorrectas:</p>
-                        <span id="summary-incorrect">0</span>
-                    </div>
-                    <div class="summary-item">
-                        <p>Porcentaje de Respuestas Correctas:</p>
-                        <span id="summary-correct-percentage">0%</span>
-                    </div>
-                    <div id="performance-analysis" class="performance-analysis hidden">
-                        <h4>Análisis de Fortalezas y Debilidades</h4>
-                        <ul id="category-list"></ul>
-                    </div>
+                    <p id="summary-correct">Correctas: 0</p>
+                    <p id="summary-incorrect">Incorrectas: 0</p>
                     <button onclick="goBack()" class="btn secondary">Volver a Inicio</button>
                 </section>
             </section>
@@ -134,6 +120,7 @@
                     <button onclick="showGeneralStats()" class="btn small">Resumen General</button>
                     <button onclick="showCategoryStats()" class="btn small">Por Categoría</button>
                     <button onclick="showExerciseStats()" class="btn small">Por Ejercicio</button>
+                    <button onclick="goBack()" class="btn small">Volver</button>
                 </section>
 
                 <section id="stats-content" class="stats-content">

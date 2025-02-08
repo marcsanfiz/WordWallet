@@ -109,6 +109,11 @@ body {
     font-size: 14px;
 }
 
+.btn.small.volver {
+    padding: 8px 12px; /* Ajusta el padding para hacerlo más pequeño horizontalmente */
+    width: 80px; /* Establece un ancho específico */
+}
+
 .primary {
     background-color: var(--primary-color-light);
     color: white;
@@ -331,45 +336,8 @@ body {
     transition: color 0.3s;
 }
 
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color-light);
-    transition: border-bottom-color 0.3s;
-}
-
-.summary-item:last-child {
-    border-bottom: none;
-}
-
-.summary-item p {
-    margin: 0;
+.exercise-summary p {
     font-size: 16px;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.summary-item span {
-    font-size: 16px;
-    font-weight: 600;
-    transition: color 0.3s;
-}
-
-.performance-analysis {
-    margin-top: 20px;
-    text-align: left;
-}
-
-.performance-analysis h4 {
-    font-size: 18px;
-    font-weight: 600;
-    transition: color 0.3s;
-}
-
-.performance-analysis p {
-    font-size: 14px;
     font-weight: 500;
     transition: color 0.3s;
 }
@@ -445,19 +413,7 @@ body.dark-mode .exercise-summary h3 {
     color: var(--text-color-dark);
 }
 
-body.dark-mode .summary-item p {
-    color: var(--text-color-dark);
-}
-
-body.dark-mode .summary-item span {
-    color: var(--text-color-dark);
-}
-
-body.dark-mode .performance-analysis h4 {
-    color: var(--text-color-dark);
-}
-
-body.dark-mode .performance-analysis p {
+body.dark-mode .exercise-summary p {
     color: var(--text-color-dark);
 }
 
@@ -524,4 +480,59 @@ body.dark-mode .theme-toggle input[type="checkbox"]:checked {
 
 body.dark-mode .theme-toggle input[type="checkbox"]:before {
     background-color: #333;
+}
+
+/* Estilos para la pantalla de Estadísticas */
+.stats-navigation {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.stats-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stats-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.stats-content p {
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.stats-content ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.stats-content li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: border-bottom-color 0.3s;
+}
+
+.stats-content li:last-child {
+    border-bottom: none;
+}
+
+body.dark-mode .stats-content li {
+    border-bottom-color: var(--border-color-dark);
+}
+.hidden {
+    display: none;
+}
+
+#import-loader {
+    font-size: 14px;
+    color: var(--tertiary-color-light);
 }
