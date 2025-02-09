@@ -571,3 +571,31 @@ body.dark-mode .stats-content li {
 .word-sublist li:last-child {
     border-bottom: none;
 }
+
+.dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-light);
+    z-index: 1000;
+}
+
+.dialog.hidden {
+    display: none;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Estilo para el cuadro de diálogo en modo oscuro */
+body.dark-mode .dialog {
+    color: black; /* Cambiar el color de la fuente a negro */
+}

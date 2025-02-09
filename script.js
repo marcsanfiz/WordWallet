@@ -388,46 +388,29 @@ function getRandomAnswers(category, type, count, correctAnswer) {
 
 // Verificar la respuesta
 function checkAnswer(userAnswer) {
-    const questionElement = document.getElementById("question");
-    const resultMessageElement = document.getElementById("result-message");
-
     const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
-
-    // Si userAnswer es undefined, obtener el valor del campo de entrada
-    if (userAnswer === undefined) {
-        userAnswer = document.getElementById("answer-input").value.trim();
-    }
-
-    const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
-
-    if (isCorrect) {
-        resultMessageElement.textContent = "Respuesta correcta!";
-        resultMessageElement.style.color = "green";
-        resultMessageElement.classList.add("fade-in", "correct");
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
         score.correct++;
-    } else {
-        resultMessageElement.textContent = `Incorrecto. La respuesta correcta era "${correctAnswer}".`;
-        resultMessageElement.style.color = "red";
-        resultMessageElement.classList.add("fade-in", "incorrect");
-        score.incorrect++;
-    }
-
-    // Guardar resultado en el historial
-    exerciseHistory.push({
-        date: new Date().toISOString(),
-        word: showWord ? currentWordObj.word : currentWordObj.translation,
-        answer: userAnswer,
-        correct: correctAnswer,
-        isCorrect: isCorrect
-    });
-
-    saveExerciseHistoryToLocalStorage();
-
-    setTimeout(() => {
-        resultMessageElement.classList.remove("fade-in", "correct", "incorrect");
-        currentQuestionIndex++;
         showNextQuestion();
-    }, 1500);
+    } else {
+        score.incorrect++;
+        showCorrectAnswerDialog(correctAnswer);
+    }
+}
+
+// Mostrar el cuadro de diálogo con la respuesta correcta
+function showCorrectAnswerDialog(correctAnswer) {
+    const dialog = document.getElementById("correct-answer-dialog");
+    const message = document.getElementById("correct-answer-message");
+    message.textContent = `La respuesta correcta es: ${correctAnswer}`;
+    dialog.classList.remove("hidden");
+}
+
+// Cerrar el cuadro de diálogo y pasar a la siguiente pregunta
+function closeCorrectAnswerDialog() {
+    const dialog = document.getElementById("correct-answer-dialog");
+    dialog.classList.add("hidden");
+    showNextQuestion();
 }
 
 // Finalizar el ejercicio
