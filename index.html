@@ -18,7 +18,7 @@
                 <button onclick="showExercises()" class="btn secondary">Ejercicios</button>
                 <button onclick="showStatistics()" class="btn tertiary">Estadísticas</button>
                 <button onclick="resetStats()" class="btn small reset">Restablecer Estadísticas</button>
-<div id="theme-toggle" class="theme-toggle">
+                <div id="theme-toggle" class="theme-toggle">
                     <label for="theme-switch">Tema Oscuro</label>
                     <input type="checkbox" id="theme-switch" onchange="toggleTheme()">
                 </div>
@@ -46,7 +46,7 @@
                 </form>
 
                 <section id="import-section" class="import-section">
-<div id="import-loader" class="hidden">Cargando...</div>
+                    <div id="import-loader" class="hidden">Cargando...</div>
                     <label for="csv-file" class="btn secondary">Importar CSV</label>
                     <input type="file" id="csv-file" accept=".csv" hidden>
                     <button onclick="handleCSVImport(event)" class="btn tertiary">Subir</button>
@@ -57,6 +57,7 @@
                     <h3>Lista de Palabras</h3>
                     <ul id="word-list" class="word-list"></ul>
                 </section>
+                
 
                 <!-- Botón para volver a la pantalla anterior -->
                 <button onclick="goBack()" class="btn secondary back-to-home">Volver a Inicio</button>

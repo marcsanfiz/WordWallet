@@ -536,3 +536,38 @@ body.dark-mode .stats-content li {
     font-size: 14px;
     color: var(--tertiary-color-light);
 }
+
+.category-item {
+    margin-bottom: 10px;
+}
+
+.category-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--primary-color-light);
+    color: white;
+    border-radius: 8px;
+}
+
+.toggle-icon {
+    font-size: 18px;
+}
+
+.word-sublist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 5px;
+}
+
+.word-sublist li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.word-sublist li:last-child {
+    border-bottom: none;
+}

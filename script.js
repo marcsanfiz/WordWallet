@@ -50,7 +50,7 @@ async function handleCSVImport(event) {
     const file = fileInput.files[0];
 
     if (!file) {
-        alert("Por favor, seleccione un archivo CSV.");
+        alert("Por favor, selecciona un archivo CSV.");
         return;
     }
 
@@ -61,14 +61,12 @@ async function handleCSVImport(event) {
         const importedWords = parseCSV(text);
 
         if (validateImportedWords(importedWords)) {
-            words = words.concat(importedWords);
+            words.push(...importedWords);
             saveWordsToLocalStorage();
-            alert("Palabras importadas exitosamente");
-            renderWordList(); // Renderizar la lista de palabras después de importar palabras desde un archivo CSV
+            renderWordList();
             populateCategories();
-            updateGeneralStats();
-            updateCategoryStats();
-            showAddWords(); // Asegurarse de que la pantalla de añadir palabras se mantenga visible
+            // Recargar la pantalla "Añadir Palabras"
+            showAddWords();
         } else {
             alert("El archivo CSV contiene datos inválidos.");
         }
@@ -112,6 +110,8 @@ function loadExerciseHistoryFromLocalStorage() {
 function showAddWords() {
     document.getElementById("home-screen").classList.remove("active");
     document.getElementById("add-words-screen").classList.add("active");
+    document.getElementById("exercises-screen").classList.remove("active");
+    document.getElementById("statistics-screen").classList.remove("active");
     renderWordList();
     populateCategories();
 }
@@ -144,27 +144,52 @@ function goBack() {
     resetScore();
 }
 
-// Renderizar la lista de palabras
+// Renderizar la lista de palabras agrupadas por categorías
 function renderWordList() {
     const wordListElement = document.getElementById("word-list");
     wordListElement.innerHTML = "";
 
-    words.forEach((wordObj, index) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = `${wordObj.word} - ${wordObj.translation} (${wordObj.category})`;
+    const groupedWords = words.reduce((acc, wordObj) => {
+        if (!acc[wordObj.category]) {
+            acc[wordObj.category] = [];
+        }
+        acc[wordObj.category].push(wordObj);
+        return acc;
+    }, {});
 
-        const editButton = document.createElement("button");
-        editButton.textContent = "Editar";
-        editButton.onclick = () => editWord(index);
+    for (const [category, words] of Object.entries(groupedWords)) {
+        const categoryElement = document.createElement("li");
+        categoryElement.classList.add("category-item");
+        categoryElement.innerHTML = `
+            <div class="category-header" onclick="toggleCategory('${category}')">
+                <strong>${category}</strong>
+                <span class="toggle-icon">+</span>
+            </div>
+            <ul class="word-sublist hidden" id="category-${category}">
+                ${words.map((wordObj, index) => `
+                    <li>
+                        ${wordObj.word} - ${wordObj.translation}
+                        <button onclick="editWord(${index})">Editar</button>
+                        <button onclick="deleteWord(${index})">Eliminar</button>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+        wordListElement.appendChild(categoryElement);
+    }
+}
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Eliminar";
-        deleteButton.onclick = () => deleteWord(index);
-
-        listItem.appendChild(editButton);
-        listItem.appendChild(deleteButton);
-        wordListElement.appendChild(listItem);
-    });
+// Función para alternar la visibilidad de las categorías
+function toggleCategory(category) {
+    const sublist = document.getElementById(`category-${category}`);
+    const toggleIcon = sublist.previousElementSibling.querySelector('.toggle-icon');
+    if (sublist.classList.contains('hidden')) {
+        sublist.classList.remove('hidden');
+        toggleIcon.textContent = '-';
+    } else {
+        sublist.classList.add('hidden');
+        toggleIcon.textContent = '+';
+    }
 }
 
 // Editar una palabra
@@ -323,38 +348,42 @@ function showNextQuestion() {
 
     if (exerciseType === "test" || (exerciseType === "mixed" && Math.random() < 0.5)) {
         const correctAnswer = showWord ? currentWordObj.translation : currentWordObj.word;
-        const allAnswers = [correctAnswer, ...getRandomAnswers(currentWordObj.category, showWord ? 'translation' : 'word', 3)];
-        shuffleArray(allAnswers);
+        const randomAnswers = getRandomAnswers(currentWordObj.category, showWord ? 'translation' : 'word', 3, correctAnswer);
+        randomAnswers.push(correctAnswer);
+        shuffleArray(randomAnswers);
 
-        questionElement.textContent = showWord ? `¿Qué significa "${currentWordObj.word}"?` : `¿Cuál es la palabra para "${currentWordObj.translation}"?`;
-
-        allAnswers.forEach(answer => {
-            const button = document.createElement("button");
-            button.textContent = answer;
-            button.onclick = () => checkAnswer(answer);
-            optionsElement.appendChild(button);
+        questionElement.innerHTML = showWord ? currentWordObj.word : currentWordObj.translation;
+        randomAnswers.forEach(answer => {
+            const optionButton = document.createElement("button");
+            optionButton.classList.add("btn", "option");
+            optionButton.innerHTML = answer;
+            optionButton.onclick = () => checkAnswer(answer);
+            optionsElement.appendChild(optionButton);
         });
     } else {
-        questionElement.textContent = showWord ? `Escribe la traducción de "${currentWordObj.word}"` : `Escribe la palabra para "${currentWordObj.translation}"`;
+        questionElement.innerHTML = showWord ? currentWordObj.word : currentWordObj.translation;
         answerInputElement.classList.remove("hidden");
         submitAnswerBtn.classList.remove("hidden");
-        answerInputElement.value = ""; // Limpiar el campo de entrada
-        submitAnswerBtn.onclick = () => checkAnswer(); // Asignar evento onclick al botón de envío
+        submitAnswerBtn.onclick = () => checkAnswer(answerInputElement.value.trim());
     }
+
+    currentQuestionIndex++;
 }
 
 // Obtener respuestas aleatorias para las opciones de test
-function getRandomAnswers(category, type, count) {
+function getRandomAnswers(category, type, count, correctAnswer) {
     const filteredWords = words.filter(word => word.category === category);
     const allAnswers = filteredWords.map(word => type === 'translation' ? word.translation : word.word);
-    const randomAnswers = [];
-    while (randomAnswers.length < count) {
+    const randomAnswers = new Set();
+
+    while (randomAnswers.size < count) {
         const randomAnswer = allAnswers[Math.floor(Math.random() * allAnswers.length)];
-        if (!randomAnswers.includes(randomAnswer)) {
-            randomAnswers.push(randomAnswer);
+        if (randomAnswer !== correctAnswer) {
+            randomAnswers.add(randomAnswer);
         }
     }
-    return randomAnswers;
+
+    return Array.from(randomAnswers);
 }
 
 // Verificar la respuesta
@@ -607,33 +636,60 @@ function resetStats() {
     }
 }
 
+// Parsear CSV
+function parseCSV(text) {
+    const lines = text.split("\n");
+    const result = [];
+    for (const line of lines) {
+        const [word, translation, category] = line.split(",");
+        if (word && translation && category) {
+            result.push({ word: word.trim(), translation: translation.trim(), category: category.trim() });
+        }
+    }
+    return result;
+}
+
 // Mejoras en la importación CSV
-function handleCSVImport(event) {
+async function handleCSVImport(event) {
     event.preventDefault();
     const fileInput = document.getElementById("csv-file");
     const file = fileInput.files[0];
-    const loader = document.getElementById("import-loader");
-
+    
     if (!file) {
-        alert("Selecciona un archivo CSV.");
+        alert("Por favor, selecciona un archivo CSV.");
         return;
     }
 
-    loader.classList.remove("hidden");
-
+    // Mostrar loader
+    document.getElementById('import-loader').classList.remove('hidden');
+    
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async function(e) {
         const text = e.target.result;
-        const rows = text.split("\n").filter(row => row.trim() !== "");
-        const importedWords = rows.map(row => {
-            const [word, translation, category] = row.split(",");
-            return { word: word.trim(), translation: translation.trim(), category: category.trim() };
-        });
-
-        words = [...words, ...importedWords];
-        saveWordsToLocalStorage();
-        alert(`${importedWords.length} palabras importadas.`);
-        loader.classList.add("hidden");
+        const importedWords = parseCSV(text);
+        
+        if (validateImportedWords(importedWords)) {
+            words.push(...importedWords);
+            saveWordsToLocalStorage();
+            
+            // Actualización inmediata del listado
+            renderWordList(); 
+            populateCategories();
+            
+            // Resetear input y ocultar loader
+            fileInput.value = '';
+            document.getElementById('import-loader').classList.add('hidden');
+            
+            // Mostrar feedback visual
+            document.getElementById('word-list').classList.add('fade-in');
+            setTimeout(() => {
+                document.getElementById('word-list').classList.remove('fade-in');
+            }, 500);
+            
+        } else {
+            alert("El archivo CSV contiene datos inválidos.");
+            document.getElementById('import-loader').classList.add('hidden');
+        }
     };
     reader.readAsText(file);
 }
