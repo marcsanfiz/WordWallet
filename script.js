@@ -253,6 +253,7 @@ function populateCategories() {
 
 // Iniciar el modo Test
 function startTest() {
+    if (!validateCategories()) return;
     const selectedCategories = Array.from(document.getElementById("categories").selectedOptions).map(option => option.value);
     const quantity = parseInt(document.getElementById("quantity").value);
     const exerciseWords = getExerciseWords(selectedCategories, quantity);
@@ -262,6 +263,7 @@ function startTest() {
 
 // Iniciar el modo Escritura
 function startWriting() {
+    if (!validateCategories()) return;
     const selectedCategories = Array.from(document.getElementById("categories").selectedOptions).map(option => option.value);
     const quantity = parseInt(document.getElementById("quantity").value);
     const exerciseWords = getExerciseWords(selectedCategories, quantity);
@@ -271,6 +273,7 @@ function startWriting() {
 
 // Iniciar el modo Mixto
 function startMixed() {
+    if (!validateCategories()) return;
     const selectedCategories = Array.from(document.getElementById("categories").selectedOptions).map(option => option.value);
     const quantity = parseInt(document.getElementById("quantity").value);
     const exerciseWords = getExerciseWords(selectedCategories, quantity);
@@ -366,6 +369,8 @@ function showNextQuestion() {
         submitAnswerBtn.classList.remove("hidden");
         submitAnswerBtn.onclick = () => checkAnswer(answerInputElement.value.trim());
     }
+
+    document.getElementById('answer-input').value = '';  // Limpia el campo de texto
 
     currentQuestionIndex++;
 }
@@ -632,55 +637,22 @@ function parseCSV(text) {
     return result;
 }
 
-// Mejoras en la importación CSV
-async function handleCSVImport(event) {
-    event.preventDefault();
-    const fileInput = document.getElementById("csv-file");
-    const file = fileInput.files[0];
-    
-    if (!file) {
-        alert("Por favor, selecciona un archivo CSV.");
-        return;
-    }
-
-    // Mostrar loader
-    document.getElementById('import-loader').classList.remove('hidden');
-    
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        const text = e.target.result;
-        const importedWords = parseCSV(text);
-        
-        if (validateImportedWords(importedWords)) {
-            words.push(...importedWords);
-            saveWordsToLocalStorage();
-            
-            // Actualización inmediata del listado
-            renderWordList(); 
-            populateCategories();
-            
-            // Resetear input y ocultar loader
-            fileInput.value = '';
-            document.getElementById('import-loader').classList.add('hidden');
-            
-            // Mostrar feedback visual
-            document.getElementById('word-list').classList.add('fade-in');
-            setTimeout(() => {
-                document.getElementById('word-list').classList.remove('fade-in');
-            }, 500);
-            
-        } else {
-            alert("El archivo CSV contiene datos inválidos.");
-            document.getElementById('import-loader').classList.add('hidden');
-        }
-    };
-    reader.readAsText(file);
-}
-
 // Función para mezclar un array
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+function validateCategories() {
+    const categories = document.getElementById('categories');
+    const errorMessage = document.getElementById('category-error');
+    
+    if (categories.selectedOptions.length === 0) {
+        errorMessage.classList.remove('hidden');
+        return false;
+    }
+    errorMessage.classList.add('hidden');
+    return true;
 }

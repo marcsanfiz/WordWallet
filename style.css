@@ -599,3 +599,10 @@ body.dark-mode .stats-content li {
 body.dark-mode .dialog {
     color: black; /* Cambiar el color de la fuente a negro */
 }
+
+.error-message {
+    color: #ff4444;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
