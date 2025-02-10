@@ -338,36 +338,124 @@ body {
     }
 }
 
+/* Resumen de Ejercicios */
 .exercise-summary {
+    background-color: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-light);
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
     text-align: center;
-    margin-top: 20px;
 }
 
 .exercise-summary h3 {
-    font-size: 20px;
-    font-weight: 600;
-    transition: color 0.3s;
+    color: var(--text-color-light);
+    margin-bottom: 20px;
+    font-size: 24px;
+    background: linear-gradient(135deg, var(--primary-color-light), var(--secondary-color-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
 }
 
 .exercise-summary p {
-    font-size: 16px;
-    font-weight: 500;
-    transition: color 0.3s;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+    font-size: 18px;
+    background-color: rgba(168, 216, 234, 0.1);
+    transition: all 0.3s ease;
 }
 
-.progress-bar-container {
+.exercise-summary p:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#summary-correct {
+    color: #4CAF50;
+    border-left: 4px solid #4CAF50;
+}
+
+#summary-incorrect {
+    color: #F44336;
+    border-left: 4px solid #F44336;
+}
+
+/* Estadísticas */
+.stats-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-light);
     width: 100%;
-    height: 12px;
-    background-color: var(--border-color-light);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-top: 20px;
+    max-width: 600px;
+    margin: 20px auto;
 }
 
-.progress-bar {
-    height: 100%;
-    background-color: var(--primary-color-light);
-    transition: width 0.5s ease;
+.stats-content h3 {
+    color: var(--text-color-light);
+    margin-bottom: 20px;
+    font-size: 24px;
+    background: linear-gradient(135deg, var(--primary-color-light), var(--secondary-color-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.general-stats p,
+.category-stats p,
+.exercise-stats p {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: rgba(168, 216, 234, 0.1);
+    transition: all 0.3s ease;
+}
+
+.general-stats p:hover,
+.category-stats p:hover,
+.exercise-stats p:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#category-list,
+#exercise-list {
+    list-style: none;
+    padding: 0;
+}
+
+#category-list li,
+#exercise-list li {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 12px;
+    background-color: rgba(168, 216, 234, 0.1);
+    transition: all 0.3s ease;
+}
+
+#category-list li:hover,
+#exercise-list li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stats-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.stats-navigation .btn {
+    padding: 10px 20px;
+    font-size: 14px;
 }
 
 /* Tema Oscuro */
