@@ -286,8 +286,14 @@ function getExerciseWords(categories, quantity) {
     const filteredWords = words.filter(word => categories.includes(word.category));
     let exerciseWords = [];
 
+    // Mezclar las palabras filtradas para asegurar una distribución aleatoria
+    shuffleArray(filteredWords);
+
     while (exerciseWords.length < quantity) {
         exerciseWords.push(...filteredWords);
+        if (exerciseWords.length >= quantity) {
+            break;
+        }
     }
 
     return exerciseWords.slice(0, quantity);
